@@ -1,18 +1,17 @@
 -- +goose Up
--- SELECT 'up SQL query';
 
 CREATE TABLE users (
     id bigserial primary key,
     tg_id bigint not null unique,
     username text,
     age int,
-    time_zone text
+    time_zone text not null
 );
 
-CREATE TABLE dates (
-    dateid integer primary key,
+CREATE TABLE reminders (
+    dateid bigserial primary key,
     user_id bigint not null references users(id),
-    "description" text,
+    description text,
     time_announce timestamp
 );
 
