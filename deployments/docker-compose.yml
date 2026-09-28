@@ -1,9 +1,11 @@
 services:
   bot:
-    build: .
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
     container_name: reminder-bot
     env_file: 
-    - .env
+    - ../.env
     depends_on:
     - db
 
