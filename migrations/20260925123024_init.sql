@@ -1,19 +1,20 @@
 -- +goose Up
--- SELECT 'up SQL query';
 
 CREATE TABLE users (
-    id integer primary key,
-    'name' text,
+    id bigserial primary key,
+    tg_id bigint not null unique,
+    username text,
     age int,
-    time_zone text,
-)
+    time_zone text not null
+);
 
-CREATE TABLE dates (
-    dateid integer primary key
-    userid integer foreign key,
-    'description' text,
-    time_announce timestamp,
-)
+CREATE TABLE reminders (
+    dateid bigserial primary key,
+    user_id bigint not null references users(id),
+    description text,
+    time_announce timestamptz
+);
 
 -- +goose Down
-SELECT 'down SQL query';
+DROP TABLE reminders;
+DROP TABLE users;
