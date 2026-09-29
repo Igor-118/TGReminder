@@ -12,9 +12,9 @@ CREATE TABLE reminders (
     dateid bigserial primary key,
     user_id bigint not null references users(id),
     description text,
-    time_announce timestamp
+    time_announce timestamptz
 );
 
 -- +goose Down
-DROP TABLE dates;
+DROP TABLE reminders;
 DROP TABLE users;
