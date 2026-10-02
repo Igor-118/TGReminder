@@ -20,9 +20,9 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("загрузка конфига не прошла: %w", err)
 	}
 
-	pool, err := pgxpool.New(context.Background(), cfg.DB.DBString())
+	pool, err := pgxpool.New(ctx, cfg.DB.DBString())
 	if err != nil {
-		log.Fatal("ошибка создания дб: %v\n", err)
+		return nil, fmt.Errorf("ошибка с пулом: %w", err)
 	}
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()
@@ -45,7 +45,7 @@ func New(ctx context.Context) (*App, error) {
 func (a *App) Run(ctx context.Context) error {
 	err := a.bot.Run(ctx)
 	if err != nil {
-		return fmt.Errorf("эщкере Run в app.go ошибка")
+		return fmt.Errorf("бегущий низ %w", err)
 	}
 	return err
 }

@@ -2,9 +2,11 @@ package bot
 
 import (
 	"context"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"fmt"
 	"log"
 	"os"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	//"fmt"
 )
 
@@ -13,9 +15,9 @@ type Bot struct {
 }
 
 func New(token string) (*Bot, error) {
-	bot1, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
+	bot1, err := tgbotapi.NewBotAPI(os.Getenv(token))
 	if err != nil {
-		log.Panic(err)
+		return nil, fmt.Errorf("Ошибка в получении токена", err)
 	}
 
 	// bot1.Debug = true

@@ -19,11 +19,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//truba := &app.App{}
-	oshibka := bigJopa.Run(ctx)
-	if err != nil {
-		log.Println("отака фигня собачка", oshibka)
-	}
 	defer bigJopa.Close()
+	//truba := &app.App{}
+	err = bigJopa.Run(ctx)
+	if err != nil {
+		log.Println("отака фигня собачка", err)
+	}
+	
 }

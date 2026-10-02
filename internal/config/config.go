@@ -39,7 +39,10 @@ type Telegram struct {
 }
 
 func Load() (*Config, error) {
-	_ = godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		return nil, fmt.Errorf("Лоад не сработал, ошибочка %w", err)
+	}
 	botToken := os.Getenv("BOT_TOKEN")
 
 	postgresUser := os.Getenv("POSTGRES_USER")
