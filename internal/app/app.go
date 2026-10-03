@@ -45,7 +45,7 @@ func New(ctx context.Context) (*App, error) {
 func (a *App) Run(ctx context.Context) error {
 	err := a.bot.Run(ctx)
 	if err != nil {
-		return fmt.Errorf("бегущий низ %w", err)
+		return fmt.Errorf("бот не запустился %w", err)
 	}
 	return err
 }

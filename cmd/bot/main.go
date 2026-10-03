@@ -25,5 +25,5 @@ func main() {
 	if err != nil {
 		log.Println("отака фигня собачка", err)
 	}
-	
+
 }

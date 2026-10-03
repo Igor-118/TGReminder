@@ -44,6 +44,9 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("Лоад не сработал, ошибочка %w", err)
 	}
 	botToken := os.Getenv("BOT_TOKEN")
+	if botToken == "" {
+		return nil, fmt.Errorf("пустой бот токен")
+	}
 
 	postgresUser := os.Getenv("POSTGRES_USER")
 	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
