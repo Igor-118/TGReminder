@@ -1,14 +1,12 @@
 package main
 
 import (
-	// "log"
 	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	//tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	// "github.com/joho/godotenv"
+
 	"tg-reminder/internal/app"
 )
 
@@ -20,7 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer bigJopa.Close()
-	//truba := &app.App{}
 	err = bigJopa.Run(ctx)
 	if err != nil {
 		log.Println("отака фигня собачка", err)

@@ -1,17 +1,10 @@
 package config
 
 import (
-	//"context"
-	//"log"
+
 	"fmt"
 	"os"
-
-	//tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
-	//"github.com/jackc/pgx/v5"
-	// "tgtest/repo"
-
-	//"github.com/jackc/pgx/v5/pgxpool"
+	"errors"
 	"github.com/joho/godotenv"
 )
 
@@ -40,9 +33,9 @@ type Telegram struct {
 
 func Load() (*Config, error) {
 	err := godotenv.Load()
-	if err != nil {
-		return nil, fmt.Errorf("Лоад не сработал, ошибочка %w", err)
-	}
+	if err = godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
+      return nil, fmt.Errorf("load .env: %w", err)
+ }
 	botToken := os.Getenv("BOT_TOKEN")
 	if botToken == "" {
 		return nil, fmt.Errorf("пустой бот токен")
