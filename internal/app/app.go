@@ -3,10 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"log"
+	"log/slog"
 	"tg-reminder/internal/bot"
 	"tg-reminder/internal/config"
+	"tg-reminder/pkg/logger"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
@@ -20,6 +22,12 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("загрузка конфига не прошла: %w", err)
 	}
 
+	lg := logger.NewLogger(&cfg.Logger)
+	slog.SetDefault(lg)
+	for _, w := range cfg.Warnings {
+		slog.Warn(w)
+	}
+
 	pool, err := pgxpool.New(ctx, cfg.DB.DBString())
 	if err != nil {
 		return nil, fmt.Errorf("ошибка с пулом: %w", err)
@@ -28,9 +36,9 @@ func New(ctx context.Context) (*App, error) {
 		pool.Close()
 		return nil, fmt.Errorf("соединиться к бд не прошло: %w", err)
 	}
-	log.Println("Соединение прошло успешно")
+	slog.Info("Соединение прошло успешно")
 
-	jopaBota, err := bot.New(cfg.BotToken)
+	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug)
 	if err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("не получилось создать бота: %w", err)

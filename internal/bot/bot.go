@@ -3,26 +3,25 @@ package bot
 import (
 	"context"
 	"fmt"
-	"log"
-	// "os"
+	"log/slog"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	//"fmt"
 )
 
 type Bot struct {
 	bot *tgbotapi.BotAPI
 }
 
-func New(token string) (*Bot, error) {
+func New(token string, debug bool) (*Bot, error) {
 	bot1, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("подключение к telegram: %w", err)
 	}
+	if debug {
+		bot1.Debug = true
+	}
 
-	// bot1.Debug = true
-
-	log.Printf("Authorized on account %s", bot1.Self.UserName)
+	slog.Info("Authorized on account", "username", bot1.Self.UserName)
 
 	return &Bot{bot: bot1}, nil
 }
