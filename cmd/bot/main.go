@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,7 +21,7 @@ func main() {
 	defer bigJopa.Close()
 	err = bigJopa.Run(ctx)
 	if err != nil {
-		log.Println("отака фигня собачка", err)
+		slog.Error("отака фигня собачка", "error", err)
 	}
 
 }
