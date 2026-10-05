@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"tg-reminder/internal/service"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Bot struct {
 	bot *tgbotapi.BotAPI
+	service *service.RegistrationService
 }
 
-func New(token string, debug bool) (*Bot, error) {
+func New(token string, debug bool, service *service.RegistrationService) (*Bot, error) {
 	bot1, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("подключение к telegram: %w", err)
@@ -23,7 +25,7 @@ func New(token string, debug bool) (*Bot, error) {
 
 	slog.Info("Authorized on account", "username", bot1.Self.UserName)
 
-	return &Bot{bot: bot1}, nil
+	return &Bot{bot: bot1, service: service}, nil
 }
 
 func (b *Bot) Run(ctx context.Context) error {

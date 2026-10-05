@@ -7,7 +7,8 @@ import (
 	"tg-reminder/internal/bot"
 	"tg-reminder/internal/config"
 	"tg-reminder/pkg/logger"
-
+	"tg-reminder/internal/repository"
+	"tg-reminder/internal/service"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -37,8 +38,9 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("соединиться к бд не прошло: %w", err)
 	}
 	slog.Info("Соединение прошло успешно")
-
-	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug)
+	repository := repository.NewUserRepository(pool)
+	service := service.NewRegistrationService(repository)
+	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, service)
 	if err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("не получилось создать бота: %w", err)
