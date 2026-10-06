@@ -10,7 +10,7 @@ import (
 )
 
 type Bot struct {
-	bot     *tgbotapi.BotAPI
+	bot          *tgbotapi.BotAPI
 	registration *service.RegistrationService
 }
 

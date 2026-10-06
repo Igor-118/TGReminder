@@ -28,6 +28,6 @@ func (r *RegistrationService) HandleInput(ctx context.Context, userID int64, inp
 			"error", err)
 		return Reply{Text: "Что-то пошло не так, попробуй позже"}
 	}
-	slog.Info("лог что поиск успешно завершён", userID)
+	slog.Info("лог что поиск успешно завершён", "userID", userID)
 	return Reply{Text: fmt.Sprintf("Привет, %v!", user.Name)}
 }
