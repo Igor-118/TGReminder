@@ -10,8 +10,8 @@ import (
 )
 
 type Bot struct {
-	bot *tgbotapi.BotAPI
-	service *service.RegistrationService
+	bot     *tgbotapi.BotAPI
+	registration *service.RegistrationService
 }
 
 func New(token string, debug bool, service *service.RegistrationService) (*Bot, error) {
@@ -25,7 +25,7 @@ func New(token string, debug bool, service *service.RegistrationService) (*Bot, 
 
 	slog.Info("Authorized on account", "username", bot1.Self.UserName)
 
-	return &Bot{bot: bot1, service: service}, nil
+	return &Bot{bot: bot1, registration: service}, nil
 }
 
 func (b *Bot) Run(ctx context.Context) error {

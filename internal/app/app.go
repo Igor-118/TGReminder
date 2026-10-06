@@ -3,13 +3,13 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"tg-reminder/internal/bot"
 	"tg-reminder/internal/config"
-	"tg-reminder/pkg/logger"
 	"tg-reminder/internal/repository"
 	"tg-reminder/internal/service"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"tg-reminder/pkg/logger"
 )
 
 type App struct {
@@ -38,9 +38,9 @@ func New(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("соединиться к бд не прошло: %w", err)
 	}
 	slog.Info("Соединение прошло успешно")
-	repository := repository.NewUserRepository(pool)
-	service := service.NewRegistrationService(repository)
-	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, service)
+	userRepo := repository.NewUserRepository(pool)
+	registration := service.NewRegistrationService(userRepo)
+	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, registration)
 	if err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("не получилось создать бота: %w", err)

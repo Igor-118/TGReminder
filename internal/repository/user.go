@@ -19,7 +19,7 @@ func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 
 func (u *UserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
 	user := &domain.User{}
-	err := u.connectionsPool.QueryRow(ctx, "select * from users where tg_id = $1;", tgID).Scan(
+	err := u.connectionsPool.QueryRow(ctx, "select id, tg_id, username, age, time_zone from users where tg_id = $1;", tgID).Scan(
 		&user.ID, &user.TgID, &user.Name, &user.Age, &user.TimeZone,
 	)
 	if err != nil {

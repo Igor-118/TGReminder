@@ -1,7 +1,5 @@
 package service
 
-import ()
-
 // Reply — что показать пользователю.
 type Reply struct {
 	Text    string
