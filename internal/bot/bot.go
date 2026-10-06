@@ -14,7 +14,7 @@ type Bot struct {
 	registration *service.RegistrationService
 }
 
-func New(token string, debug bool, service *service.RegistrationService) (*Bot, error) {
+func New(token string, debug bool, registration *service.RegistrationService) (*Bot, error) {
 	bot1, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("подключение к telegram: %w", err)
@@ -25,7 +25,7 @@ func New(token string, debug bool, service *service.RegistrationService) (*Bot, 
 
 	slog.Info("Authorized on account", "username", bot1.Self.UserName)
 
-	return &Bot{bot: bot1, registration: service}, nil
+	return &Bot{bot: bot1, registration: registration}, nil
 }
 
 func (b *Bot) Run(ctx context.Context) error {
