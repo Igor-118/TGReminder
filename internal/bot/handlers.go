@@ -13,8 +13,10 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 		return
 	}
 	slog.Debug("Got an update message", "user", update.Message.From.UserName, "text", update.Message.Text)
-
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+	id := update.Message.From.ID
+	text := update.Message.Text
+	reply := b.registration.HandleInput(ctx, id, text)
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply.Text)
 	msg.ReplyToMessageID = update.Message.MessageID
 
 	_, err := b.bot.Send(msg)
