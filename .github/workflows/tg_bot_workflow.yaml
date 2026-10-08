@@ -1,0 +1,20 @@
+name: "TgReminder Workflow Action"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install go ci
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14
+      - name: run lint
+        run: golangci-lint run

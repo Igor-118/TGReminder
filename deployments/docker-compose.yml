@@ -4,8 +4,15 @@ services:
       context: ..
       dockerfile: deployments/Dockerfile
     container_name: reminder-bot
-    env_file: 
-    - ../.env
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN:?BOT_TOKEN is required}
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB?POSTGRES_DB is required}
+      POSTGRES_HOST: ${POSTGRES_HOST
+      POSTGRES_PORT: 5432
     depends_on:
     - db
 
@@ -13,10 +20,10 @@ services:
     image: postgres:17
     container_name: reminder-docker
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    volumes: 
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB?POSTGRES_DB is required}
+    volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
