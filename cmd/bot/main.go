@@ -16,7 +16,7 @@ func main() {
 	defer stop()
 	bigJopa, err := app.New(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Ошибка при запуске бота %v", err)
 	}
 	defer bigJopa.Close()
 	err = bigJopa.Run(ctx)

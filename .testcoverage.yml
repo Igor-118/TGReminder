@@ -1,0 +1,6 @@
+profile: cover.out
+threshold:
+  total: 10
+exclude:
+  paths:
+    - main\.go$

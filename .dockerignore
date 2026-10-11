@@ -2,3 +2,5 @@
 .git
 .DB_Store
 .secrets
+coverage.out
+**/*_tesg.go
