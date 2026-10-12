@@ -39,8 +39,11 @@ func New(ctx context.Context) (*App, error) {
 	}
 	slog.Info("Соединение прошло успешно")
 	userRepo := repository.NewUserRepository(pool)
+	reminderRepo := repository.NewReminderRepository(pool)
+
 	registration := service.NewRegistrationService(userRepo)
-	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, registration)
+	reminder := service.NewReminderService(userRepo, reminderRepo)
+	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, registration, reminder)
 	if err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("не получилось создать бота: %w", err)

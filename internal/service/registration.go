@@ -10,6 +10,7 @@ import (
 
 type RegistrationService struct {
 	userRepo *repository.UserRepository
+	dates    *repository.ReminderRepository
 }
 
 func NewRegistrationService(repository *repository.UserRepository) *RegistrationService {
