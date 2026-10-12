@@ -22,6 +22,10 @@ jobs:
           version: v2.14
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
       - name: setup gp
@@ -31,19 +35,39 @@ jobs:
       - name: generate test coverage
         run: go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       - name: download master breakdown
-        id: download-master-breakdonw
+        id: download-master-breakdown
         uses: dawidd6/action-download-artifact@v6
         with:
           branch: master
           workflow_conclusion: success
           name: master.breakdown
           if_no_artifact_found: warn
+
       - name: check test coverage
+        id: coverage
         uses: vladopajic/go-test-coverage@v2
+        continue-on-error: true
         with:
           config: ./.testcoverage.yml
           breakdown-file-name: ${{github.ref_name == 'master' && 'master.breakdown' || ''}}
-          diff-base-breakdown-file-name: ${{ steps.download-master-breakdown.outputs.found_artifcat == 'true' && 'master.breakdown' || ''}}
+          diff-base-breakdown-file-name: ${{ steps.download-master-breakdown.outputs.found_artifact == 'true' && 'master.breakdown' || ''}}
+
+      - name: post coverage report
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-tag: coverage-report
+          message: |
+              go-test-coverage report:configs:
+              ```
+              {{ stepts.coverage.outputs.report }}
+              ```
+
+      - name: fail if coverage check failed
+        if: steps.coverage.outcome == 'failure'
+        run: exit 1
+
       - name: upload master breakdown
         if: github.ref_name == 'master'
         uses: actions/upload-artifact@v4
