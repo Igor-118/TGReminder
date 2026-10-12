@@ -1,6 +1,6 @@
 .env
 .git
-.DB_Store
+.DS_Store
 .secrets
 coverage.out
 **/*_tesg.go

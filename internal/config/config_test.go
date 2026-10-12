@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
@@ -70,7 +69,7 @@ func TestLoad_EnvVars(t *testing.T) {
 			t.Setenv(tt.key, tt.value)
 			cfg, err := config.Load()
 			if err != nil {
-				t.Errorf("Should not produce error for optional params %v", err)
+				t.Fatalf("Should not produce error for optional params %v", err)
 			}
 			if !slices.Contains(cfg.Warnings, tt.warning) {
 				t.Errorf("Not produces expected warnings, expected=%v, got=%v", tt.warning, cfg.Warnings)
@@ -97,6 +96,6 @@ func TestDbString(t *testing.T) {
 	dbString := cfg.DB.DBString()
 	testString := "postgres://test_user:test_password@test_host:5432/test_db"
 	if dbString != testString {
-		log.Fatalf("DBString method should return %s, actually got %s", testString, dbString)
+		t.Fatalf("DBString method should return %s, actually got %s", testString, dbString)
 	}
 }

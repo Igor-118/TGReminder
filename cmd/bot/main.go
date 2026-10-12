@@ -17,11 +17,11 @@ func main() {
 	bigJopa, err := app.New(ctx)
 	if err != nil {
 		log.Printf("Ошибка при запуске бота %v", err)
+		return
 	}
 	defer bigJopa.Close()
 	err = bigJopa.Run(ctx)
 	if err != nil {
 		slog.Error("отака фигня собачка", "error", err)
 	}
-
 }

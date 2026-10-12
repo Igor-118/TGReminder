@@ -14,12 +14,8 @@ Telegram-бот для напоминалок: добавляешь напоми
 
 - Go 1.26+
 - Docker и docker compose
-- goose:
-  ```bash
-  # ставится в $(go env GOPATH)/bin — эта папка должна быть в PATH
-  go install github.com/pressly/goose/v3/cmd/goose@v3.26.0
-  goose -version   # проверить, что установился
-  ```
+- make
+- [golangci-lint](https://golangci-lint.run/) v2 — только для `make lint`
 
 ## Инициализация
 
@@ -28,59 +24,72 @@ Telegram-бот для напоминалок: добавляешь напоми
    go mod download
    ```
 
-2. Создать `.env` из шаблона:
+2. Положить токен бота в `.secrets` (в git не коммитится). Токен выдаёт [@BotFather](https://t.me/BotFather):
    ```bash
-   cp .env.example .env
+   echo 'BOT_TOKEN=123456:ABC...' > .secrets
    ```
-   `.env` в git не коммитится — у каждого свой.
 
-3. Заполнить значения в `.env`. Минимум — `BOT_TOKEN`, его выдаёт [@BotFather](https://t.me/BotFather).
+`.env` руками не редактируется — его собирает `make` из `env.example` и `.secrets`.
+Чтобы поменять настройки, правь `env.example`, а секреты — `.secrets`: значения из `.secrets` перекрывают одноимённые из `env.example`.
 
 ## Запуск локально
 
-1. Поднять Postgres:
-   ```bash
-   docker compose -f deployments/docker-compose.yml up -d db
-   ```
+Бот запускается на хосте, Postgres — в докере:
 
-2. Накатить миграции (goose сам читает `GOOSE_*` из `.env`):
-   ```bash
-   goose up
-   ```
+```bash
+make run-local
+```
 
-3. Запустить бота:
-   ```bash
-   go run ./cmd/bot
-   ```
+Что делает команда:
+
+1. `make local-env` — собирает `.env` с хостом базы `127.0.0.1`;
+2. `make db-up` — поднимает Postgres в докере и ждёт, пока он начнёт принимать подключения;
+3. `make migrate-up` — накатывает миграции;
+4. `go run ./cmd/bot` — запускает бота.
+
+Остановить базу (данные сохраняются):
+
+```bash
+make db-down
+```
 
 ## Запуск через docker compose
 
-В `.env` поменять хост базы на имя сервиса:
-
-```
-POSTGRES_HOST=db
-GOOSE_DBSTRING=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
-```
-
-И поднять всё:
+Бот и Postgres — оба в докере:
 
 ```bash
-docker compose -f deployments/docker-compose.yml up -d --build
-docker compose -f deployments/docker-compose.yml logs -f bot
+make run
+docker compose --env-file .env -f deployments/docker-compose.yml logs -f bot   # логи бота
 ```
+
+`make run` собирает `.env` для докера, пересобирает образ и поднимает контейнеры. Миграции накатываются при старте контейнера бота (`entrypoint.sh`).
 
 Остановить:
 
 ```bash
-docker compose -f deployments/docker-compose.yml down        # контейнеры
-docker compose -f deployments/docker-compose.yml down -v     # + удалить данные базы
+make stop                                                       # контейнеры
+docker compose --env-file .env -f deployments/docker-compose.yml down -v        # + удалить данные базы
 ```
 
 ## Миграции
 
+Перед командами нужен `.env` для локального запуска (`make local-env`) и поднятая база (`make db-up`).
+
 ```bash
-goose create <name> sql   # новая миграция в ./migrations
-goose up                  # накатить все
-goose down                # откатить последнюю
-goose status              # статус
+make migrate-up       # накатить все
+make migrate-down     # откатить последнюю
+make migrate-status   # статус
+```
+
+Новая миграция:
+
+```bash
+go run github.com/pressly/goose/v3/cmd/goose@v3.26.0 -dir migrations create <name> sql
+```
+
+## Тесты и линтер
+
+```bash
+make test   # тесты + отчёт о покрытии в coverage.html
+make lint   # golangci-lint
 ```
