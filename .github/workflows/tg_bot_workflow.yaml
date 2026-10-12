@@ -33,13 +33,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: generate test coverage
-        run: go test -v ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
-      # TODO: убрать после отладки покрытия
-      - name: debug coverage
-        run: |
-          go version
-          go tool cover -func=cover.out
-          grep -c . cover.out
+        run: go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
       - name: download master breakdown
         id: download-master-breakdown
         uses: dawidd6/action-download-artifact@v6
@@ -55,7 +49,6 @@ jobs:
         continue-on-error: true
         with:
           config: ./.testcoverage.yml
-          debug: true # TODO: убрать после отладки покрытия
           breakdown-file-name: ${{github.ref_name == 'master' && 'master.breakdown' || ''}}
           diff-base-breakdown-file-name: ${{ steps.download-master-breakdown.outputs.found_artifact == 'true' && 'master.breakdown' || ''}}
 
