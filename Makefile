@@ -1,4 +1,4 @@
-.PHONY: db_run db_run_local local-env docker-env stop db-up db-down migrate-up migrate-down migrate-status run-local
+.PHONY: local-env docker-env start_docker run stop lint test db-up db-down migrate-up migrate-down migrate-status run-local
 
 # env.example без ключей, которые переопределены в .secrets (чтобы не было дублей в .env).
 ENV_EXAMPLE = { \
@@ -49,9 +49,10 @@ stop:
 lint:
 	golangci-lint run
 
-.PHONY: test
 test:
-	go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html
+	go test ./... -coverpkg=./... -coverprofile=coverage.out
+	go tool cover -func=coverage.out | tail -1
+	go tool cover -html=coverage.out -o coverage.html
 
 # --- Локальный запуск: приложение на хосте, Postgres в докере ---
 
@@ -59,7 +60,7 @@ COMPOSE = docker compose --env-file .env -f deployments/docker-compose.yml
 # goose без установки: скачается и закэшируется при первом запуске
 GOOSE ?= go run github.com/pressly/goose/v3/cmd/goose@v3.26.0
 
-db-up:f
+db-up:
 	$(COMPOSE) up -d db
 	@echo "waiting for postgres..."
 	@until $(COMPOSE) exec -T db pg_isready -q; do sleep 1; done

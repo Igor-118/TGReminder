@@ -3,4 +3,7 @@
 .DS_Store
 .secrets
 coverage.out
-**/*_tesg.go
+**/*_test.go
+coverage.html
+cover.out
+coverage.out
