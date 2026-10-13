@@ -1,6 +1,5 @@
 package service
 
-
 // Reply — что показать пользователю.
 type Reply struct {
 	Text    string
@@ -12,3 +11,5 @@ type Option struct {
 	Label string // что видит пользователь: "Москва"
 	Value string // что вернётся в сервис при выборе: "Europe/Moscow"
 }
+
+var errorReply = Reply{Text: "Что-то пошло не так, попробуй позже"}

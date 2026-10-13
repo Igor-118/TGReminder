@@ -26,7 +26,7 @@ func (r *RegistrationService) HandleInput(ctx context.Context, userID int64, inp
 		slog.Error("failed to get user",
 			"userID", userID,
 			"error", err)
-		return Reply{Text: "Что-то пошло не так, попробуй позже"}
+		return errorReply
 	}
 	slog.Info("лог что поиск успешно завершён", "userID", userID)
 	return Reply{Text: fmt.Sprintf("Привет, %v!", user.Name)}

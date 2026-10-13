@@ -25,8 +25,6 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 		reply = b.registration.HandleInput(ctx, id, text)
 	}
 
-	
-
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply.Text)
 	msg.ReplyToMessageID = update.Message.MessageID
 

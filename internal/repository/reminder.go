@@ -18,7 +18,7 @@ func NewReminderRepository(pool *pgxpool.Pool) *ReminderRepository {
 func (r *ReminderRepository) ListUpcoming(ctx context.Context, userID int64,
 	limit int) ([]domain.Reminder, error) {
 	rows, err := r.pool.Query(ctx, `
-        SELECT dateid, user_id, coalesce(description, 'Без описания'), time_announce
+        SELECT dateid, user_id, coalesce(description, ''), time_announce
         FROM reminders
         WHERE user_id = $1
           AND time_announce > NOW()
