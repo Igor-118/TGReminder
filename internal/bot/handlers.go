@@ -14,17 +14,18 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	}
 	id := update.Message.From.ID
 	text := update.Message.Text
-
 	var reply service.Reply
+
+	slog.Debug("Got an update message", "user", update.Message.From.UserName, "text", update.Message.Text)
 
 	switch update.Message.Command() {
 	case "list":
-		reply = b.remService.List(ctx, id)
+		reply = b.reminders.List(ctx, id)
 	default:
 		reply = b.registration.HandleInput(ctx, id, text)
 	}
 
-	slog.Debug("Got an update message", "user", update.Message.From.UserName, "text", update.Message.Text)
+	
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply.Text)
 	msg.ReplyToMessageID = update.Message.MessageID

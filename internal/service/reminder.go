@@ -12,16 +12,19 @@ import (
 
 type ReminderService struct {
 	userRepo *repository.UserRepository
-	dates    *repository.ReminderRepository
+	reminderRepo    *repository.ReminderRepository
 }
 
 func NewReminderService(userRepo *repository.UserRepository, reminderRepo *repository.ReminderRepository,
 ) *ReminderService {
 	return &ReminderService{
 		userRepo: userRepo,
-		dates:    reminderRepo,
+		reminderRepo:    reminderRepo,
 	}
 }
+
+var errorsReply = Reply{Text: "Что-то пошло не так, попробуй позже"}
+const listLimit = 20
 
 func (s *ReminderService) List(ctx context.Context, userID int64) Reply {
 	user, err := s.userRepo.GetUserByTgID(ctx, userID)
@@ -31,16 +34,16 @@ func (s *ReminderService) List(ctx context.Context, userID int64) Reply {
 		}
 
 		slog.Error("failed to get user", "userID", userID, "error", err)
-		return Reply{Text: "Что-то пошло не так, попробуй позже"}
+		return errorsReply
 	}
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
 		slog.Error("не удалось получить часовой пояс", "userID", userID, "timeZone", user.TimeZone, "error", err)
-		return Reply{Text: "что то пошло не так, дружок пирожок попробуй попозже"}
+		return errorsReply
 	}
 
-	reminders, err := s.dates.ListUpcoming(ctx, user.ID, 10)
+	reminders, err := s.reminderRepo.ListUpcoming(ctx, user.ID, listLimit)
 	if err != nil {
 		slog.Error("ошибка с листом напоминаний", "userID", userID, "error", err)
 		return Reply{Text: "не получилось получить лист напоминаний"}
