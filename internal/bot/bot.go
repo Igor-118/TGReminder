@@ -12,9 +12,10 @@ import (
 type Bot struct {
 	bot          *tgbotapi.BotAPI
 	registration *service.RegistrationService
+	reminders    *service.ReminderService
 }
 
-func New(token string, debug bool, registration *service.RegistrationService) (*Bot, error) {
+func New(token string, debug bool, registration *service.RegistrationService, reminders *service.ReminderService) (*Bot, error) {
 	bot1, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("подключение к telegram: %w", err)
@@ -25,7 +26,7 @@ func New(token string, debug bool, registration *service.RegistrationService) (*
 
 	slog.Info("Authorized on account", "username", bot1.Self.UserName)
 
-	return &Bot{bot: bot1, registration: registration}, nil
+	return &Bot{bot: bot1, registration: registration, reminders: reminders}, nil
 }
 
 func (b *Bot) Run(ctx context.Context) error {
