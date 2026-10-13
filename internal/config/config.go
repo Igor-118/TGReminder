@@ -29,7 +29,7 @@ type DB struct {
 }
 
 func (db *DB) DBString() string {
-	//DATABASE_URL :="postgres://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/POSTGRES_DB"
+	// DATABASE_URL :="postgres://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/POSTGRES_DB"
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s", db.PostgresUser, db.PostgresPassword, db.PostgreHost, db.PostgresPort, db.PostgresDB)
 }
 

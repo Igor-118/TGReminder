@@ -1,2 +1,7 @@
 .env
+.secrets
 ignorirovat/
+coverage.out
+coverage.html
+cover.out
+.DS_Store
