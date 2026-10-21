@@ -19,7 +19,7 @@ func NewProfileService(userRepo *repository.UserRepository) *ProfileService {
 	}
 }
 
-func (p *ProfileService) UserInfo(ctx context.Context, userID int64) Reply {
+func (p *ProfileService) Show(ctx context.Context, userID int64) Reply {
 	user, err := p.userRepo.GetUserByTgID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {

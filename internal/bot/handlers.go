@@ -22,7 +22,7 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	case "list":
 		reply = b.reminders.List(ctx, id)
 	case "profile":
-		reply = b.profile.UserInfo(ctx, id)
+		reply = b.profile.Show(ctx, id)
 	default:
 		reply = b.registration.HandleInput(ctx, id, text)
 	}

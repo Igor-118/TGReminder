@@ -6,19 +6,24 @@ import (
 	"fmt"
 	"log/slog"
 	"tg-reminder/internal/repository"
+	"tg-reminder/internal/domain"
 )
 
 type RegistrationService struct {
-	userRepo *repository.UserRepository
+	userInterface UserInterface
+}
+
+type UserInterface interface{
+	 GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error)
 }
 
 func NewRegistrationService(repository *repository.UserRepository) *RegistrationService {
-	return &RegistrationService{userRepo: repository}
+	return &RegistrationService{userInterface: repository}
 }
 
 func (r *RegistrationService) HandleInput(ctx context.Context, userID int64, input string) Reply {
 	slog.Info("Starting HandleInput", "userID", userID)
-	user, err := r.userRepo.GetUserByTgID(ctx, userID)
+	user, err := r.userInterface.GetUserByTgID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
