@@ -79,9 +79,6 @@ func TestData(t *testing.T) {
 			name: "неверный пояс чаовой",
 			input: &fakeUserRepo{
 				user: &domain.User{
-					ID:       101,
-					Name:     "kuku",
-					Age:      228,
 					TimeZone: "Mars/Olympus",
 				},
 				err:     nil,
