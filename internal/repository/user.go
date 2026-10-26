@@ -31,11 +31,11 @@ func (u *UserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain
 	return user, nil
 }
 
-type TestUserRepository struct {}
+type TestUserRepository struct{}
 
 func (t *TestUserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
 	return &domain.User{
 		Age: 20,
-		ID: 10,
+		ID:  10,
 	}, nil
 }

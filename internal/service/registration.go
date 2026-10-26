@@ -5,20 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"tg-reminder/internal/repository"
 	"tg-reminder/internal/domain"
+	"tg-reminder/internal/repository"
 )
 
 type RegistrationService struct {
-	userInterface UserInterface
+	userInterface userGetter
 }
 
-type UserInterface interface{
-	 GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error)
+func NewRegistrationService(userRepo userGetter) *RegistrationService {
+	return &RegistrationService{userInterface: userRepo}
 }
 
-func NewRegistrationService(repository *repository.UserRepository) *RegistrationService {
-	return &RegistrationService{userInterface: repository}
+type userGetter interface {
+	GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error)
 }
 
 func (r *RegistrationService) HandleInput(ctx context.Context, userID int64, input string) Reply {

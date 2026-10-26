@@ -10,10 +10,10 @@ import (
 )
 
 type ProfileService struct {
-	userRepo *repository.UserRepository
+	userRepo userGetter
 }
 
-func NewProfileService(userRepo *repository.UserRepository) *ProfileService {
+func NewProfileService(userRepo userGetter) *ProfileService {
 	return &ProfileService{
 		userRepo: userRepo,
 	}
