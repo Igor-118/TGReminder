@@ -1,47 +1,110 @@
 package service_test
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	//"os"
-	//"path/filepath"
-	"slices"
+	"strings"
 	"testing"
-
-	"tg-reminder/internal/config"
+	"tg-reminder/internal/domain"
+	"tg-reminder/internal/repository"
+	"tg-reminder/internal/service"
 )
 
-func TestLoad_EnvVars(t *testing.T) {
-	t.Chdir(t.TempDir())
+type fakeUserRepo struct {
+	user    *domain.User // какого пользователя вернуть
+	err     error        // какую ошибку вернуть
+	gotTgID int64        // сюда метод запишет, с каким tgID его вызвали
+}
+
+func (f *fakeUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
+	f.gotTgID = tgID
+	return f.user, f.err
+}
+
+func TestData(t *testing.T) {
 	tests := []struct {
-		name    string
-		key     string
-		value   string
-		warning string
+		name  string
+		input *fakeUserRepo
+		want  []string
 	}{
 		{
-			name:    "Invalid debug value",
-			key:     "DEBUG",
-			value:   "123",
-			warning: fmt.Sprintf("неизвестный DEBUG=%q, используем false", "123"),
+			name: "Пользователь существует",
+			input: &fakeUserRepo{
+				user: &domain.User{
+					ID:       100,
+					Name:     "Бурмалда",
+					Age:      228,
+					TimeZone: "Europe/Moscow",
+				},
+				err:     nil,
+				gotTgID: 50,
+			},
+			want: []string{"Бурмалда", "228", "Europe/Moscow", "Сейчас у тебя:"},
 		},
 		{
-			name:    "Invalid log level",
-			key:     "LOG_LEVEL",
-			value:   "123",
-			warning: fmt.Sprintf("неизвестный LOG_LEVEL=%q, используем INFO", "123"),
+			name: "пользователя нет",
+			input: &fakeUserRepo{
+				user:    &domain.User{},
+				err:     repository.ErrNotFound,
+				gotTgID: 51,
+			},
+			want: []string{
+				"Сначала зарегистрируйся — напиши /start",
+			},
+		},
+		{
+			name: "ошибка обёрнута в лаваш",
+			input: &fakeUserRepo{
+				user:    &domain.User{},
+				err:     fmt.Errorf("get user: %w", repository.ErrNotFound),
+				gotTgID: 52,
+			},
+			want: []string{
+				"Сначала зарегистрируйся — напиши /start",
+			},
+		},
+		{
+			name: "ошибка Базы данных",
+			input: &fakeUserRepo{
+				user:    &domain.User{},
+				err:     errors.New("db down, База данных вниз"),
+				gotTgID: 53,
+			},
+			want: []string{
+				"Что-то пошло не так, попробуй позже",
+			},
+		},
+		{
+			name: "неверный пояс чаовой",
+			input: &fakeUserRepo{
+				user: &domain.User{
+					ID:       101,
+					Name:     "kuku",
+					Age:      228,
+					TimeZone: "Mars/Olympus",
+				},
+				err:     nil,
+				gotTgID: 54,
+			},
+			want: []string{
+				"Что-то пошло не так, попробуй позже",
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("BOT_TOKEN", "test-token")
-			t.Setenv(tt.key, tt.value)
-			cfg, err := config.Load()
-			if err != nil {
-				t.Fatalf("Should not produce error for optional params %v", err)
-			}
-			if !slices.Contains(cfg.Warnings, tt.warning) {
-				t.Errorf("Not produces expected warnings, expected=%v, got=%v", tt.warning, cfg.Warnings)
+			ctx := context.Background()
+			profile := service.NewProfileService(tt.input)
+			got := profile.Show(ctx, 50)
+			for _, expected := range tt.want {
+				if !strings.Contains(got.Text, expected) {
+					t.Errorf(
+						"Show().Text = %q, ожидали наличие %q",
+						got.Text, expected,
+					)
+				}
 			}
 		})
 	}
