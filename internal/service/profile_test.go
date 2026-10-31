@@ -54,7 +54,7 @@ func TestData(t *testing.T) {
 			},
 		},
 		{
-			name: "ошибка обёрнута в лаваш",
+			name: "ошибка обёрнута",
 			input: &fakeUserRepo{
 				user:    &domain.User{},
 				err:     fmt.Errorf("get user: %w", repository.ErrNotFound),

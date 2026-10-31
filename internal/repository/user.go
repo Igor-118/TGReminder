@@ -39,3 +39,9 @@ func (t *TestUserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*do
 		ID:  10,
 	}, nil
 }
+
+func (t *TestUserRepository) ListUpcoming(ctx context.Context, tgID int64, limit int) (*domain.Reminder, error) {
+	return &domain.Reminder{
+		UserID: 20,
+	}, nil
+}

@@ -6,16 +6,21 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"tg-reminder/internal/domain"
 	"tg-reminder/internal/repository"
 	"time"
 )
 
 type ReminderService struct {
-	userRepo     *repository.UserRepository
-	reminderRepo *repository.ReminderRepository
+	userRepo     userGetter
+	reminderRepo reminderGetter // *repository.ReminderRepository
 }
 
-func NewReminderService(userRepo *repository.UserRepository, reminderRepo *repository.ReminderRepository,
+type reminderGetter interface {
+	ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error)
+}
+
+func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
 ) *ReminderService {
 	return &ReminderService{
 		userRepo:     userRepo,
@@ -42,7 +47,7 @@ func (s *ReminderService) List(ctx context.Context, userID int64) Reply {
 		return errorReply
 	}
 
-	reminders, err := s.reminderRepo.ListUpcoming(ctx, user.ID, listLimit)
+	reminders, err := s.reminderRepo.ListUpcoming(ctx, userID, listLimit)
 	if err != nil {
 		slog.Error("ошибка с листом напоминаний", "userID", userID, "error", err)
 		return errorReply
