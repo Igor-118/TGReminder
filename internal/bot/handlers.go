@@ -21,6 +21,8 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	switch update.Message.Command() {
 	case "list":
 		reply = b.reminders.List(ctx, id)
+	case "profile":
+		reply = b.profile.Show(ctx, id)
 	default:
 		reply = b.registration.HandleInput(ctx, id, text)
 	}

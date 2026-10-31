@@ -30,3 +30,18 @@ func (u *UserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain
 	}
 	return user, nil
 }
+
+type TestUserRepository struct{}
+
+func (t *TestUserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
+	return &domain.User{
+		Age: 20,
+		ID:  10,
+	}, nil
+}
+
+func (t *TestUserRepository) ListUpcoming(ctx context.Context, tgID int64, limit int) (*domain.Reminder, error) {
+	return &domain.Reminder{
+		UserID: 20,
+	}, nil
+}
