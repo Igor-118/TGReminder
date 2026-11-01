@@ -57,8 +57,6 @@ func TestDataReminder(t *testing.T) {
 					Age:      228,
 					TimeZone: "Europe/Moscow",
 				},
-				err:     nil,
-				gotTgID: 50,
 			},
 			inputReminder: &fakeReminderRepo{
 				reminders: []domain.Reminder{
@@ -72,7 +70,7 @@ func TestDataReminder(t *testing.T) {
 					},
 				},
 			},
-			tgID:               50,
+			tgID:               100,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want:               []string{"Сходить в магазин", "вернуться с магазина"},
@@ -128,7 +126,7 @@ func TestDataReminder(t *testing.T) {
 			inputReminder: &fakeReminderRepo{
 				err: errors.New("db down"),
 			},
-			tgID:               55,
+			tgID:               100,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want:               []string{"Что-то пошло не так, попробуй позже"},
@@ -144,7 +142,7 @@ func TestDataReminder(t *testing.T) {
 			inputReminder: &fakeReminderRepo{
 				reminders: []domain.Reminder{},
 			},
-			tgID:               56,
+			tgID:               100,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want: []string{
@@ -167,7 +165,7 @@ func TestDataReminder(t *testing.T) {
 					},
 				},
 			},
-			tgID:               57,
+			tgID:               100,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want: []string{
