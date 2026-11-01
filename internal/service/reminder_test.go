@@ -31,14 +31,14 @@ func (f *fakeReminderUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*
 	return f.user, f.err
 }
 
-func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
+func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, tgID int64, limit int) ([]domain.Reminder, error) {
 	f.called = true
-	f.gotUserID = userID
+	f.gotUserID = tgID
 	f.gotLimit = limit
 	return f.reminders, f.err
 }
 
-func TestDataReminder(t *testing.T) {
+func TestReminderService_List(t *testing.T) {
 	tests := []struct {
 		name               string
 		inputUser          *fakeReminderUserRepo
@@ -49,7 +49,7 @@ func TestDataReminder(t *testing.T) {
 		want               []string
 	}{
 		{
-			name: "список дел",
+			name: "успешное получение списка дел",
 			inputUser: &fakeReminderUserRepo{
 				user: &domain.User{
 					ID:       100,
@@ -70,7 +70,7 @@ func TestDataReminder(t *testing.T) {
 					},
 				},
 			},
-			tgID:               100,
+			tgID:               50,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want:               []string{"Сходить в магазин", "вернуться с магазина"},
@@ -126,7 +126,7 @@ func TestDataReminder(t *testing.T) {
 			inputReminder: &fakeReminderRepo{
 				err: errors.New("db down"),
 			},
-			tgID:               100,
+			tgID:               55,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want:               []string{"Что-то пошло не так, попробуй позже"},
@@ -142,7 +142,7 @@ func TestDataReminder(t *testing.T) {
 			inputReminder: &fakeReminderRepo{
 				reminders: []domain.Reminder{},
 			},
-			tgID:               100,
+			tgID:               56,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want: []string{
@@ -165,7 +165,7 @@ func TestDataReminder(t *testing.T) {
 					},
 				},
 			},
-			tgID:               100,
+			tgID:               57,
 			wantUserID:         100,
 			wantReminderCalled: true,
 			want: []string{
@@ -219,7 +219,7 @@ func TestDataReminder(t *testing.T) {
 			for _, expected := range tt.want {
 				if !strings.Contains(got.Text, expected) {
 					t.Errorf(
-						"Show().Text = %q, ожидали наличие %q",
+						"List().Text = %q, ожидали наличие %q",
 						got.Text, expected,
 					)
 				}

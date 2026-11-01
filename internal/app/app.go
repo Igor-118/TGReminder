@@ -44,8 +44,8 @@ func New(ctx context.Context) (*App, error) {
 	registration := service.NewRegistrationService(userRepo)
 	reminder := service.NewReminderService(userRepo, reminderRepo)
 
-	userInfo := service.NewProfileService(userRepo)
-	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, registration, reminder, userInfo)
+	profile := service.NewProfileService(userRepo)
+	jopaBota, err := bot.New(cfg.BotToken, cfg.Debug, registration, reminder, profile)
 	if err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("не получилось создать бота: %w", err)

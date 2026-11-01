@@ -26,7 +26,7 @@ func TestDataInterface(t *testing.T) {
 	tests := []struct {
 		name  string
 		input *fakeUserInterface
-		want  []string
+		want  string
 	}{
 		{
 			name: "приветствие пользователя",
@@ -35,9 +35,8 @@ func TestDataInterface(t *testing.T) {
 					Name: "Игорь",
 				},
 				err:     nil,
-				gotTgID: 10,
 			},
-			want: []string{"Привет, Игорь!"},
+			want: "Привет, Игорь!",
 		},
 		{
 			name: "пользователя нет",
@@ -45,25 +44,23 @@ func TestDataInterface(t *testing.T) {
 				user: &domain.User{},
 				err:  repository.ErrNotFound,
 			},
-			want: []string{"Сначала зарегистрируйся — напиши /start"},
+			want: "Сначала зарегистрируйся — напиши /start",
 		},
 		{
 			name: "ошибка обёрнута",
 			input: &fakeUserInterface{
 				user:    &domain.User{},
 				err:     fmt.Errorf("get user: %w", repository.ErrNotFound),
-				gotTgID: 11,
 			},
-			want: []string{"Сначала зарегистрируйся — напиши /start"},
+			want: "Сначала зарегистрируйся — напиши /start",
 		},
 		{
 			name: "ошибка Базы Данных",
 			input: &fakeUserInterface{
 				user:    &domain.User{},
 				err:     errors.New("db down, База данных вниз"),
-				gotTgID: 12,
 			},
-			want: []string{"Что-то пошло не так, попробуй позже"},
+			want: "Что-то пошло не так, попробуй позже",
 		},
 	}
 
@@ -72,14 +69,14 @@ func TestDataInterface(t *testing.T) {
 			ctx := context.Background()
 			registration := service.NewRegistrationService(tt.input)
 			got := registration.HandleInput(ctx, 10, "kek")
-			for _, expected := range tt.want {
-				if !strings.Contains(got.Text, expected) {
+			
+				if !strings.Contains(got.Text, tt.want) {
 					t.Errorf(
 						"Show().Text = %q, ожидали. А получили: %q",
-						got.Text, expected,
+						got.Text, tt.want,
 					)
 				}
-			}
+			
 		})
 	}
 }

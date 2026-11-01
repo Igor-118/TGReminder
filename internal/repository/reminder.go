@@ -34,7 +34,7 @@ func (r *ReminderRepository) ListUpcoming(ctx context.Context, userID int64,
 		var reminder domain.Reminder
 		err := rows.Scan(
 			&reminder.ID,
-			&reminder.UserID,
+			&reminder.TgID,
 			&reminder.Text,
 			&reminder.RemindAt,
 		)

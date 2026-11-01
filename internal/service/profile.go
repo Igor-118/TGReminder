@@ -19,20 +19,20 @@ func NewProfileService(userRepo userGetter) *ProfileService {
 	}
 }
 
-func (p *ProfileService) Show(ctx context.Context, userID int64) Reply {
-	user, err := p.userRepo.GetUserByTgID(ctx, userID)
+func (p *ProfileService) Show(ctx context.Context, tgID int64) Reply {
+	user, err := p.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 
-		slog.Error("failed to get user", "userID", userID, "error", err)
+		slog.Error("failed to get user", "userID", tgID, "error", err)
 		return errorReply
 	}
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
-		slog.Error("не удалось получить часовой пояс", "userID", userID, "timeZone", user.TimeZone, "error", err)
+		slog.Error("не удалось получить часовой пояс", "userID", tgID, "timeZone", user.TimeZone, "error", err)
 		return errorReply
 	}
 
