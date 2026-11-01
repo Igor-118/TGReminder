@@ -47,7 +47,7 @@ func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
 		return errorReply
 	}
 
-	reminders, err := s.reminderRepo.ListUpcoming(ctx, tgID, listLimit)
+	reminders, err := s.reminderRepo.ListUpcoming(ctx, user.ID, listLimit)
 	if err != nil {
 		slog.Error("ошибка с листом напоминаний", "userID", tgID, "error", err)
 		return errorReply
