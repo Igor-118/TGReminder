@@ -38,16 +38,18 @@ func TestProfileService_Show(t *testing.T) {
 					Age:      228,
 					TimeZone: "Europe/Moscow",
 				},
-				err:     nil,
+				err: nil,
 			},
+			tgID: 50,
 			want: []string{"Бурмалда", "228", "Europe/Moscow", "Сейчас у тебя:"},
 		},
 		{
 			name: "пользователя нет",
 			input: &fakeUserRepo{
-				user:    &domain.User{},
-				err:     repository.ErrNotFound,
+				user: &domain.User{},
+				err:  repository.ErrNotFound,
 			},
+			tgID: 51,
 			want: []string{
 				"Сначала зарегистрируйся — напиши /start",
 			},
@@ -55,9 +57,10 @@ func TestProfileService_Show(t *testing.T) {
 		{
 			name: "ошибка обёрнута",
 			input: &fakeUserRepo{
-				user:    &domain.User{},
-				err:     fmt.Errorf("get user: %w", repository.ErrNotFound),
+				user: &domain.User{},
+				err:  fmt.Errorf("get user: %w", repository.ErrNotFound),
 			},
+			tgID: 52,
 			want: []string{
 				"Сначала зарегистрируйся — напиши /start",
 			},
@@ -65,9 +68,10 @@ func TestProfileService_Show(t *testing.T) {
 		{
 			name: "ошибка Базы данных",
 			input: &fakeUserRepo{
-				user:    &domain.User{},
-				err:     errors.New("db down, База данных вниз"),
+				user: &domain.User{},
+				err:  errors.New("db down, База данных вниз"),
 			},
+			tgID: 53,
 			want: []string{
 				"Что-то пошло не так, попробуй позже",
 			},
@@ -78,8 +82,9 @@ func TestProfileService_Show(t *testing.T) {
 				user: &domain.User{
 					TimeZone: "Mars/Olympus",
 				},
-				err:     nil,
+				err: nil,
 			},
+			tgID: 54,
 			want: []string{
 				"Что-то пошло не так, попробуй позже",
 			},

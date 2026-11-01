@@ -10,29 +10,29 @@ import (
 )
 
 type RegistrationService struct {
-	userInterface userGetter
+	userRepo userGetter
 }
 
 func NewRegistrationService(userRepo userGetter) *RegistrationService {
-	return &RegistrationService{userInterface: userRepo}
+	return &RegistrationService{userRepo: userRepo}
 }
 
 type userGetter interface {
 	GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error)
 }
 
-func (r *RegistrationService) HandleInput(ctx context.Context, userID int64, input string) Reply {
-	slog.Info("Starting HandleInput", "userID", userID)
-	user, err := r.userInterface.GetUserByTgID(ctx, userID)
+func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input string) Reply {
+	slog.Info("Starting HandleInput", "userID", tgID)
+	user, err := r.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 		slog.Error("failed to get user",
-			"userID", userID,
+			"userID", tgID,
 			"error", err)
 		return errorReply
 	}
-	slog.Info("лог что поиск успешно завершён", "userID", userID)
+	slog.Info("лог что поиск успешно завершён", "userID", tgID)
 	return Reply{Text: fmt.Sprintf("Привет, %v!", user.Name)}
 }
