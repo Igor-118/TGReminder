@@ -21,7 +21,7 @@ func (f *fakeUserInterface) GetUserByTgID(ctx context.Context, tgID int64) (*dom
 	return f.user, f.err
 }
 
-func TestDataInterface(t *testing.T) {
+func TestRegistrationService_HandleInput(t *testing.T) {
 	tests := []struct {
 		name  string
 		input *fakeUserInterface

@@ -22,7 +22,7 @@ type userGetter interface {
 }
 
 func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input string) Reply {
-	slog.Info("Starting HandleInput", "userID", tgID)
+	slog.Info("Starting HandleInput", "tgID", tgID)
 	user, err := r.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {

@@ -32,7 +32,7 @@ func (p *ProfileService) Show(ctx context.Context, tgID int64) Reply {
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
-		slog.Error("не удалось получить часовой пояс", "tgID", tgID, "timeZone", user.TimeZone, "error", err)
+		slog.Error("не удалось получить часовой пояс", "userID", user.ID, "timeZone", user.TimeZone, "error", err)
 		return errorReply
 	}
 
