@@ -199,11 +199,11 @@ func TestReminderService_List(t *testing.T) {
 			// Если репозиторий напоминаний должен был вызваться,
 			// проверяем переданный внутренний ID пользователя.
 			if tt.wantReminderCalled {
-				if tt.inputReminder.gotUserID != tt.wantUserID {
+				if tt.tgID != tt.inputUser.gotTgID {
 					t.Errorf(
 						"ListUpcoming() получил ID %d, ожидали %d",
-						tt.inputReminder.gotUserID,
-						tt.wantUserID,
+						tt.tgID,
+						tt.inputUser.gotTgID,
 					)
 				}
 
