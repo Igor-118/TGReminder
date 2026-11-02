@@ -29,10 +29,10 @@ func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 		slog.Error("failed to get user",
-			"userID", tgID,
+			"tgID", tgID,
 			"error", err)
 		return errorReply
 	}
-	slog.Info("лог что поиск успешно завершён", "userID", tgID)
+	slog.Info("лог что поиск успешно завершён", "tgID", tgID)
 	return Reply{Text: fmt.Sprintf("Привет, %v!", user.Name)}
 }

@@ -17,7 +17,7 @@ type ReminderService struct {
 }
 
 type reminderGetter interface {
-	ListUpcoming(ctx context.Context, tgID int64, limit int) ([]domain.Reminder, error)
+	ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error)
 }
 
 func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
@@ -30,26 +30,26 @@ func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
 
 const listLimit = 20
 
-func (s *ReminderService) List(ctx context.Context, userID int64) Reply {
-	user, err := s.userRepo.GetUserByTgID(ctx, userID)
+func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
+	user, err := s.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 
-		slog.Error("failed to get user", "userID", userID, "error", err)
+		slog.Error("failed to get user", "tgID", tgID, "error", err)
 		return errorReply
 	}
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
-		slog.Error("не удалось получить часовой пояс", "userID", userID, "timeZone", user.TimeZone, "error", err)
+		slog.Error("не удалось получить часовой пояс", "userID", tgID, "timeZone", user.TimeZone, "error", err)
 		return errorReply
 	}
 
-	reminders, err := s.reminderRepo.ListUpcoming(ctx, userID, listLimit)
+	reminders, err := s.reminderRepo.ListUpcoming(ctx, user.ID, listLimit)
 	if err != nil {
-		slog.Error("ошибка с листом напоминаний", "userID", userID, "error", err)
+		slog.Error("ошибка с листом напоминаний", "userID", user.ID, "error", err)
 		return errorReply
 	}
 	if len(reminders) == 0 {
