@@ -36,6 +36,7 @@ func TestDataInterface(t *testing.T) {
 				},
 				err: nil,
 			},
+			tgID: 50,
 			want: "Привет, Игорь!",
 		},
 		{
@@ -44,6 +45,7 @@ func TestDataInterface(t *testing.T) {
 				user: &domain.User{},
 				err:  repository.ErrNotFound,
 			},
+			tgID: 51,
 			want: "Сначала зарегистрируйся — напиши /start",
 		},
 		{
@@ -52,6 +54,7 @@ func TestDataInterface(t *testing.T) {
 				user: &domain.User{},
 				err:  fmt.Errorf("get user: %w", repository.ErrNotFound),
 			},
+			tgID: 52,
 			want: "Сначала зарегистрируйся — напиши /start",
 		},
 		{
@@ -60,6 +63,7 @@ func TestDataInterface(t *testing.T) {
 				user: &domain.User{},
 				err:  errors.New("db down, База данных вниз"),
 			},
+			tgID: 53,
 			want: "Что-то пошло не так, попробуй позже",
 		},
 	}

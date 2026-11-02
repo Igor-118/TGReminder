@@ -31,9 +31,9 @@ func (f *fakeReminderUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*
 	return f.user, f.err
 }
 
-func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, tgID int64, limit int) ([]domain.Reminder, error) {
+func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
 	f.called = true
-	f.gotUserID = tgID
+	f.gotUserID = userID
 	f.gotLimit = limit
 	return f.reminders, f.err
 }
@@ -78,7 +78,7 @@ func TestReminderService_List(t *testing.T) {
 		{
 			name: "пользователя нет",
 			inputUser: &fakeReminderUserRepo{
-				user: &domain.User{},
+				user: nil,
 				err:  repository.ErrNotFound,
 			},
 			inputReminder: &fakeReminderRepo{},
@@ -199,11 +199,11 @@ func TestReminderService_List(t *testing.T) {
 			// Если репозиторий напоминаний должен был вызваться,
 			// проверяем переданный внутренний ID пользователя.
 			if tt.wantReminderCalled {
-				if tt.tgID != tt.inputUser.gotTgID {
+				if tt.inputReminder.gotUserID != tt.wantUserID {
 					t.Errorf(
 						"ListUpcoming() получил ID %d, ожидали %d",
-						tt.tgID,
-						tt.inputUser.gotTgID,
+						tt.inputReminder.gotUserID,
+						tt.wantUserID,
 					)
 				}
 

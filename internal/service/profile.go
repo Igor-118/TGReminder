@@ -26,13 +26,13 @@ func (p *ProfileService) Show(ctx context.Context, tgID int64) Reply {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 
-		slog.Error("failed to get user", "userID", tgID, "error", err)
+		slog.Error("failed to get user", "tgID", tgID, "error", err)
 		return errorReply
 	}
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
-		slog.Error("не удалось получить часовой пояс", "userID", tgID, "timeZone", user.TimeZone, "error", err)
+		slog.Error("не удалось получить часовой пояс", "tgID", tgID, "timeZone", user.TimeZone, "error", err)
 		return errorReply
 	}
 

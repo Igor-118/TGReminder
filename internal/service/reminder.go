@@ -43,7 +43,7 @@ func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
 
 	loc, err := time.LoadLocation(user.TimeZone)
 	if err != nil {
-		slog.Error("не удалось получить часовой пояс", "userID", tgID, "timeZone", user.TimeZone, "error", err)
+		slog.Error("не удалось получить часовой пояс", "tgID", tgID, "timeZone", user.TimeZone, "error", err)
 		return errorReply
 	}
 
@@ -59,15 +59,15 @@ func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
 	var builder strings.Builder
 	builder.WriteString("Ближайшие напоминания:\n")
 	for i, reminder := range reminders {
-		remindeAt := reminder.RemindAt.In(loc)
+		remindAt := reminder.RemindAt.In(loc)
 		if reminder.Text == "" {
 			fmt.Fprintf(&builder, "%d. Без описания — %s\n", i+1,
-				remindeAt.Format("02.01.2006 15:04"),
+				remindAt.Format("02.01.2006 15:04"),
 			)
 		} else {
 			fmt.Fprintf(&builder, "%d. %s — %s\n", i+1,
 				reminder.Text,
-				remindeAt.Format("02.01.2006 15:04"),
+				remindAt.Format("02.01.2006 15:04"),
 			)
 		}
 
