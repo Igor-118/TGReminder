@@ -12,13 +12,6 @@ import (
 	"time"
 )
 
-func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
-	f.called = true
-	f.gotUserID = userID
-	f.gotLimit = limit
-	return f.reminders, f.err
-}
-
 func TestReminderService_List(t *testing.T) {
 	tests := []struct {
 		name               string

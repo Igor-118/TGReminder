@@ -11,11 +11,6 @@ import (
 	"tg-reminder/internal/service"
 )
 
-func (f *fakeUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
-	f.gotTgID = tgID
-	return f.user, f.err
-}
-
 func TestProfileService_Show(t *testing.T) {
 	tests := []struct {
 		name  string
