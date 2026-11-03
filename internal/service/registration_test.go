@@ -10,27 +10,16 @@ import (
 	"tg-reminder/internal/service"
 )
 
-type fakeUserInterface struct {
-	user    *domain.User // какого пользователя вернуть
-	err     error        // какую ошибку вернуть
-	gotTgID int64        // сюда метод запишет, с каким tgID его вызвали
-}
-
-func (f *fakeUserInterface) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
-	f.gotTgID = tgID
-	return f.user, f.err
-}
-
 func TestRegistrationService_HandleInput(t *testing.T) {
 	tests := []struct {
 		name  string
-		input *fakeUserInterface
+		input *fakeUserRepo
 		want  string
 		tgID  int64
 	}{
 		{
 			name: "приветствие пользователя",
-			input: &fakeUserInterface{
+			input: &fakeUserRepo{
 				user: &domain.User{
 					Name: "Игорь",
 				},
@@ -41,7 +30,7 @@ func TestRegistrationService_HandleInput(t *testing.T) {
 		},
 		{
 			name: "пользователя нет",
-			input: &fakeUserInterface{
+			input: &fakeUserRepo{
 				user: &domain.User{},
 				err:  repository.ErrNotFound,
 			},
@@ -50,7 +39,7 @@ func TestRegistrationService_HandleInput(t *testing.T) {
 		},
 		{
 			name: "ошибка обёрнута",
-			input: &fakeUserInterface{
+			input: &fakeUserRepo{
 				user: &domain.User{},
 				err:  fmt.Errorf("get user: %w", repository.ErrNotFound),
 			},
@@ -59,7 +48,7 @@ func TestRegistrationService_HandleInput(t *testing.T) {
 		},
 		{
 			name: "ошибка Базы Данных",
-			input: &fakeUserInterface{
+			input: &fakeUserRepo{
 				user: &domain.User{},
 				err:  errors.New("db down, База данных вниз"),
 			},
@@ -82,8 +71,7 @@ func TestRegistrationService_HandleInput(t *testing.T) {
 			}
 			if got.Text != tt.want {
 				t.Errorf(
-					"HandleInput().Text = %q, ожидали. А получили: %q",
-					tt.want, got.Text,
+					"HandleInput().Text = %q, ожидали %q", got.Text, tt.want,
 				)
 			}
 

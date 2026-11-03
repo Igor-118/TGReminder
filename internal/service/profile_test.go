@@ -11,12 +11,6 @@ import (
 	"tg-reminder/internal/service"
 )
 
-type fakeUserRepo struct {
-	user    *domain.User // какого пользователя вернуть
-	err     error        // какую ошибку вернуть
-	gotTgID int64        // сюда метод запишет, с каким tgID его вызвали
-}
-
 func (f *fakeUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
 	f.gotTgID = tgID
 	return f.user, f.err

@@ -12,25 +12,6 @@ import (
 	"time"
 )
 
-type fakeReminderUserRepo struct {
-	user    *domain.User // какого пользователя вернуть
-	err     error        // какую ошибку вернуть
-	gotTgID int64        // сюда метод запишет, с каким tgID его вызвали
-}
-
-type fakeReminderRepo struct {
-	reminders []domain.Reminder // список событий у возвращенного пользователя
-	err       error             // какую ошибку вернуть
-	gotUserID int64             // сюда метод запишет, с каким tgID его вызвали
-	gotLimit  int
-	called    bool
-}
-
-func (f *fakeReminderUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {
-	f.gotTgID = tgID
-	return f.user, f.err
-}
-
 func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
 	f.called = true
 	f.gotUserID = userID
@@ -41,7 +22,7 @@ func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit
 func TestReminderService_List(t *testing.T) {
 	tests := []struct {
 		name               string
-		inputUser          *fakeReminderUserRepo
+		inputUser          *fakeUserRepo
 		inputReminder      *fakeReminderRepo
 		tgID               int64
 		wantUserID         int64
@@ -50,7 +31,7 @@ func TestReminderService_List(t *testing.T) {
 	}{
 		{
 			name: "успешное получение списка дел",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: &domain.User{
 					ID:       100,
 					Name:     "Бурмалда",
@@ -77,7 +58,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "пользователя нет",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: nil,
 				err:  repository.ErrNotFound,
 			},
@@ -87,7 +68,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "ошибка обёрнута",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				err: fmt.Errorf("get user: %w", repository.ErrNotFound),
 			},
 			inputReminder: &fakeReminderRepo{},
@@ -96,7 +77,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "ошибка Базы данных",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				err: errors.New("db down, База данных вниз"),
 			},
 			inputReminder: &fakeReminderRepo{},
@@ -105,7 +86,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "неверный пояс чаовой",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: &domain.User{
 					ID:       100,
 					TimeZone: "Mars/Olympus",
@@ -117,7 +98,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "ошибка с листом напоминаний",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: &domain.User{
 					ID:       100,
 					TimeZone: "Europe/Moscow",
@@ -133,7 +114,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "пустой список напоминаний",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: &domain.User{
 					ID:       100,
 					TimeZone: "Europe/Moscow",
@@ -151,7 +132,7 @@ func TestReminderService_List(t *testing.T) {
 		},
 		{
 			name: "напоминание без описания",
-			inputUser: &fakeReminderUserRepo{
+			inputUser: &fakeUserRepo{
 				user: &domain.User{
 					ID:       100,
 					TimeZone: "Europe/Moscow",
