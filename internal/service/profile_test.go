@@ -1,0 +1,106 @@
+package service_test
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"testing"
+	"tg-reminder/internal/domain"
+	"tg-reminder/internal/repository"
+	"tg-reminder/internal/service"
+)
+
+func TestProfileService_Show(t *testing.T) {
+	tests := []struct {
+		name  string
+		input *fakeUserRepo
+		want  []string
+		tgID  int64
+	}{
+		{
+			name: "Пользователь существует",
+			input: &fakeUserRepo{
+				user: &domain.User{
+					ID:       100,
+					Name:     "Бурмалда",
+					Age:      228,
+					TimeZone: "Europe/Moscow",
+				},
+				err: nil,
+			},
+			tgID: 50,
+			want: []string{"Бурмалда", "228", "Europe/Moscow", "Сейчас у тебя:"},
+		},
+		{
+			name: "пользователя нет",
+			input: &fakeUserRepo{
+				user: &domain.User{},
+				err:  repository.ErrNotFound,
+			},
+			tgID: 51,
+			want: []string{
+				"Сначала зарегистрируйся — напиши /start",
+			},
+		},
+		{
+			name: "ошибка обёрнута",
+			input: &fakeUserRepo{
+				user: &domain.User{},
+				err:  fmt.Errorf("get user: %w", repository.ErrNotFound),
+			},
+			tgID: 52,
+			want: []string{
+				"Сначала зарегистрируйся — напиши /start",
+			},
+		},
+		{
+			name: "ошибка Базы данных",
+			input: &fakeUserRepo{
+				user: &domain.User{},
+				err:  errors.New("db down, База данных вниз"),
+			},
+			tgID: 53,
+			want: []string{
+				"Что-то пошло не так, попробуй позже",
+			},
+		},
+		{
+			name: "неверный пояс чаовой",
+			input: &fakeUserRepo{
+				user: &domain.User{
+					TimeZone: "Mars/Olympus",
+				},
+				err: nil,
+			},
+			tgID: 54,
+			want: []string{
+				"Что-то пошло не так, попробуй позже",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			profile := service.NewProfileService(tt.input)
+			got := profile.Show(ctx, tt.tgID)
+			if tt.input.gotTgID != tt.tgID {
+				t.Errorf(
+					"GetUserByTgID() получил ID %d, ожидали %d",
+					tt.input.gotTgID,
+					tt.tgID,
+				)
+			}
+			for _, expected := range tt.want {
+				if !strings.Contains(got.Text, expected) {
+					t.Errorf(
+						"Show().Text = %q, ожидали наличие %q",
+						got.Text, expected,
+					)
+				}
+			}
+
+		})
+	}
+}
