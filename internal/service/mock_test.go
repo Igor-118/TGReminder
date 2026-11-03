@@ -4,8 +4,6 @@ import (
 	"tg-reminder/internal/domain"
 )
 
-
-
 type fakeUserRepo struct {
 	user    *domain.User // какого пользователя вернуть
 	err     error        // какую ошибку вернуть
