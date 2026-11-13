@@ -15,6 +15,17 @@ func NewReminderRepository(pool *pgxpool.Pool) *ReminderRepository {
 	return &ReminderRepository{pool: pool}
 }
 
+func (r *ReminderRepository) Create(ctx context.Context, rem *domain.Reminder) error {
+	_, err := r.pool.Exec(ctx, `
+        INSERT INTO reminders (user_id, description, time_announce)
+		VALUES ($1, $2, $3)
+    `, rem.UserID, rem.Text, rem.RemindAt)
+	if err != nil {
+		return fmt.Errorf("create reminder: %w", err)
+	}
+	return nil
+}
+
 func (r *ReminderRepository) ListUpcoming(ctx context.Context, userID int64,
 	limit int) ([]domain.Reminder, error) {
 	rows, err := r.pool.Query(ctx, `

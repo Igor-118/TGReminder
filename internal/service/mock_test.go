@@ -30,3 +30,9 @@ func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit
 	f.gotLimit = limit
 	return f.reminders, f.err
 }
+
+func (f *fakeReminderRepo) Create(ctx context.Context, rem *domain.Reminder) error {
+	f.called = true
+	f.gotUserID = rem.UserID
+	return f.err
+}
