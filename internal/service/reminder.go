@@ -13,15 +13,15 @@ import (
 
 type ReminderService struct {
 	userRepo     userGetter
-	reminderRepo reminderGetter // *repository.ReminderRepository
+	reminderRepo reminderStore // *repository.ReminderRepository
 }
 
-type reminderGetter interface {
+type reminderStore interface {
 	ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error)
 	Create(ctx context.Context, rem *domain.Reminder) error
 }
 
-func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
+func NewReminderService(userRepo userGetter, reminderRepo reminderStore,
 ) *ReminderService {
 	return &ReminderService{
 		userRepo:     userRepo,
@@ -48,16 +48,16 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 	nowInZone := time.Now().In(loc)
 	date, text, err := parseReminder(args, nowInZone, loc)
 	if err != nil {
-		if errors.Is(err, ErrTooLong) {
+		if errors.Is(err, errTooLong) {
 			return Reply{Text: "Текст слишком длинный"}
 		}
-		if errors.Is(err, ErrEmptyText) {
+		if errors.Is(err, errEmptyText) {
 			return Reply{Text: "Пустой текст в напоминании"}
 		}
-		if errors.Is(err, ErrInPast) {
+		if errors.Is(err, errInPast) {
 			return Reply{Text: "Нельзя создать напоминание в прошлом"}
 		}
-		if errors.Is(err, ErrBadFormat) {
+		if errors.Is(err, errBadFormat) {
 			return Reply{
 				Text: "Неверный формат. Используй: ДД.ММ.ГГГГ ЧЧ:ММ текст",
 			}
@@ -73,11 +73,11 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 	}
 	err = s.reminderRepo.Create(ctx, reminder)
 	if err != nil {
-		slog.Error("не удалось создать напоминание", "tgID", tgID, "error", err)
+		slog.Error("не удалось создать напоминание", "userID", user.ID, "error", err)
 		return errorReply
 	}
 	return Reply{
-		Text: fmt.Sprintf("Напоминание: %s", reminder.Text),
+		Text: fmt.Sprintf("Напомю %s: %s", reminder.RemindAt.Format("02.01 в 15:04"), reminder.Text),
 	}
 }
 

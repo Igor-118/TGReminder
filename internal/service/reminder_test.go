@@ -13,6 +13,16 @@ import (
 )
 
 func TestReminderService_Add(t *testing.T) {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	future := time.Now().
+		In(loc).
+		Add(24 * time.Hour).
+		Truncate(time.Minute)
+
 	tests := []struct {
 		name               string
 		inputUser          *fakeUserRepo
@@ -20,6 +30,8 @@ func TestReminderService_Add(t *testing.T) {
 		tgID               int64
 		wantUserID         int64
 		wantReminderCalled bool
+		wantReminderText   string
+		wantRemindAt       time.Time
 		args               string
 		want               string
 	}{
@@ -37,8 +49,12 @@ func TestReminderService_Add(t *testing.T) {
 			tgID:               50,
 			wantUserID:         100,
 			wantReminderCalled: true,
-			args:               "12.12.2027 15:00 Сходить в магазин",
-			want:               "Напоминание: Сходить в магазин",
+			wantReminderText:   "Сходить в магазин",
+			wantRemindAt:       future,
+			args:               future.Format("02.01.2006 15:04") + " Сходить в магазин",
+			want: "Напомю " +
+				future.Format("02.01 в 15:04") +
+				": Сходить в магазин",
 		},
 		{
 			name: "пустой текст в напоминании",
@@ -190,20 +206,46 @@ func TestReminderService_Add(t *testing.T) {
 					tt.tgID,
 				)
 			}
-			if tt.inputReminder.called != tt.wantReminderCalled {
+
+			if tt.inputReminder.calledCreate != tt.wantReminderCalled {
 				t.Errorf(
 					"Create() called = %v, ожидали %v",
-					tt.inputReminder.called,
+					tt.inputReminder.calledCreate,
 					tt.wantReminderCalled,
 				)
 			}
-			if tt.wantReminderCalled && tt.inputReminder.gotUserID != tt.wantUserID {
-				t.Errorf(
-					"Create() получил userID %d, ожидали %d",
-					tt.inputReminder.gotUserID,
-					tt.wantUserID,
-				)
+
+			if tt.wantReminderCalled {
+				if tt.inputReminder.createdReminder == nil {
+					t.Fatal("Create() не сохранил переданный Reminder")
+				}
+				gotReminder := tt.inputReminder.createdReminder
+
+				if gotReminder.UserID != tt.wantUserID {
+					t.Errorf(
+						"Create() получил userID %d, ожидали %d",
+						gotReminder.UserID,
+						tt.wantUserID,
+					)
+				}
+
+				if gotReminder.Text != tt.wantReminderText {
+					t.Errorf(
+						"Create() получил text %q, ожидали %q",
+						gotReminder.Text,
+						tt.wantReminderText,
+					)
+				}
+
+				if !gotReminder.RemindAt.Equal(tt.wantRemindAt) {
+					t.Errorf(
+						"Create() получил RemindAt %v, ожидали %v",
+						gotReminder.RemindAt,
+						tt.wantRemindAt,
+					)
+				}
 			}
+
 			if got.Text != tt.want {
 				t.Errorf(
 					"Add().Text = %q, ожидали наличие %q",
@@ -396,7 +438,7 @@ func TestReminderService_List(t *testing.T) {
 			for _, expected := range tt.want {
 				if !strings.Contains(got.Text, expected) {
 					t.Errorf(
-						"Add().Text = %q, ожидали наличие %q",
+						"List().Text = %q, ожидали наличие %q",
 						got.Text, expected,
 					)
 				}

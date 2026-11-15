@@ -25,53 +25,53 @@ func TestReminderParse(t *testing.T) {
 	}{
 		{
 			name:     "корректное напоминание",
-			args:     "02.01.2027 15:00 вайбкодинг отстой!",
-			wantText: "вайбкодинг отстой!",
+			args:     "02.01.2027 15:00 вайбкодинг отстой! и только для лохов всяких подходит",
+			wantText: "вайбкодинг отстой! и только для лохов всяких подходит",
 		},
 		{
 			name:    "пустая строка",
 			args:    "",
-			wantErr: ErrEmptyText,
+			wantErr: errEmptyText,
 		},
 		{
 			name:    "нет текста",
 			args:    "02.01.2027 15:00",
-			wantErr: ErrEmptyText,
+			wantErr: errEmptyText,
 		},
 		{
 			name:    "неправильная дата",
 			args:    "32.01.2027 15:00 Купить молоко",
-			wantErr: ErrBadFormat,
+			wantErr: errBadFormat,
 		},
 		{
 			name:    "неправильный месяц",
-			args:    "32.13.2027 15:00 Купить молоко",
-			wantErr: ErrBadFormat,
+			args:    "02.13.2027 15:00 Купить молоко",
+			wantErr: errBadFormat,
 		},
 		{
 			name:    "неправильное время",
-			args:    "32.01.2027 25:00 Купить молоко",
-			wantErr: ErrBadFormat,
+			args:    "02.01.2027 25:00 Купить молоко",
+			wantErr: errBadFormat,
 		},
 		{
 			name:    "неправильные минуты",
 			args:    "02.01.2027 15:99 Купить молоко",
-			wantErr: ErrBadFormat,
+			wantErr: errBadFormat,
 		},
 		{
 			name:    "дата в прошлом",
 			args:    "01.01.2027 10:00 Купить молоко",
-			wantErr: ErrInPast,
+			wantErr: errInPast,
 		},
 		{
 			name:    "слишком длинный текст",
-			args:    strings.Repeat("a", maxSymbols+1),
-			wantErr: ErrTooLong,
+			args:    "12.12.2027 15:00 " + strings.Repeat("a", maxSymbols+1),
+			wantErr: errTooLong,
 		},
 		{
 			name:    "длинна сообщения меньше 2 слов",
 			args:    "02.01.2028",
-			wantErr: ErrBadFormat,
+			wantErr: errBadFormat,
 		},
 	}
 
