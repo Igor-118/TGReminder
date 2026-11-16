@@ -42,7 +42,6 @@ func parseReminder(args string, now time.Time, loc *time.Location,
 	timePart := splitMessage[1]
 
 	text = strings.TrimSpace(splitMessage[2])
-	//textLength := utf8.RuneCountInString(text)
 
 	if utf8.RuneCountInString(text) > maxSymbols {
 		return time.Time{}, "", errTooLong
