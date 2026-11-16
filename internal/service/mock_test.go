@@ -16,7 +16,7 @@ type fakeReminderRepo struct {
 	err             error             // какую ошибку вернуть
 	gotUserID       int64             // сюда метод запишет, с каким userID его вызвали
 	gotLimit        int
-	called          bool
+	calledList      bool
 	calledCreate    bool
 	createdReminder *domain.Reminder
 }
@@ -27,7 +27,7 @@ func (f *fakeUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.U
 }
 
 func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
-	f.called = true
+	f.calledList = true
 	f.gotUserID = userID
 	f.gotLimit = limit
 	return f.reminders, f.err

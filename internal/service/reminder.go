@@ -46,30 +46,31 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 		return errorReply
 	}
 	nowInZone := time.Now().In(loc)
-	date, text, err := parseReminder(args, nowInZone, loc)
+	remindAt, text, err := parseReminder(args, nowInZone, loc)
 	if err != nil {
-		if errors.Is(err, errTooLong) {
+		switch {
+		case errors.Is(err, errTooLong):
 			return Reply{Text: "Текст слишком длинный"}
-		}
-		if errors.Is(err, errEmptyText) {
+
+		case errors.Is(err, errEmptyText):
 			return Reply{Text: "Пустой текст в напоминании"}
-		}
-		if errors.Is(err, errInPast) {
+
+		case errors.Is(err, errInPast):
 			return Reply{Text: "Нельзя создать напоминание в прошлом"}
-		}
-		if errors.Is(err, errBadFormat) {
+
+		case errors.Is(err, errBadFormat):
 			return Reply{
 				Text: "Неверный формат. Используй: ДД.ММ.ГГГГ ЧЧ:ММ текст",
 			}
+		default:
+			slog.Error("не удалось считать строку", "userID", user.ID, "Text", text, "error", err)
+			return errorReply
 		}
-
-		slog.Error("не удалось считать строку", "userID", user.ID, "Text", text, "error", err)
-		return errorReply
 	}
 	reminder := &domain.Reminder{
 		UserID:   user.ID,
 		Text:     text,
-		RemindAt: date,
+		RemindAt: remindAt,
 	}
 	err = s.reminderRepo.Create(ctx, reminder)
 	if err != nil {
@@ -77,7 +78,8 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 		return errorReply
 	}
 	return Reply{
-		Text: fmt.Sprintf("Напомю %s: %s", reminder.RemindAt.Format("02.01 в 15:04"), reminder.Text),
+		Text: fmt.Sprintf("Напомню %s: %s", reminder.RemindAt.Format("02.01.2006 в 15:04"),
+			reminder.Text),
 	}
 }
 

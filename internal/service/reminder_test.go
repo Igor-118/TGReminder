@@ -52,8 +52,8 @@ func TestReminderService_Add(t *testing.T) {
 			wantReminderText:   "Сходить в магазин",
 			wantRemindAt:       future,
 			args:               future.Format("02.01.2006 15:04") + " Сходить в магазин",
-			want: "Напомю " +
-				future.Format("02.01 в 15:04") +
+			want: "Напомню " +
+				future.Format("02.01.2006 в 15:04") +
 				": Сходить в магазин",
 		},
 		{
@@ -407,10 +407,10 @@ func TestReminderService_List(t *testing.T) {
 			}
 
 			// Проверяем, вызывался ли репозиторий напоминаний.
-			if tt.inputReminder.called != tt.wantReminderCalled {
+			if tt.inputReminder.calledList != tt.wantReminderCalled {
 				t.Errorf(
 					"ListUpcoming() вызван: %v, ожидали: %v",
-					tt.inputReminder.called,
+					tt.inputReminder.calledList,
 					tt.wantReminderCalled,
 				)
 			}

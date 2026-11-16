@@ -65,7 +65,7 @@ func TestReminderParse(t *testing.T) {
 		},
 		{
 			name:    "слишком длинный текст",
-			args:    "12.12.2027 15:00 " + strings.Repeat("a", maxSymbols+1),
+			args:    "12.12.2027 15:00 " + strings.Repeat("б", maxSymbols+1),
 			wantErr: errTooLong,
 		},
 		{
