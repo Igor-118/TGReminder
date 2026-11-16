@@ -51,19 +51,16 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 		switch {
 		case errors.Is(err, errTooLong):
 			return Reply{Text: "Текст слишком длинный"}
-
 		case errors.Is(err, errEmptyText):
 			return Reply{Text: "Пустой текст в напоминании"}
-
 		case errors.Is(err, errInPast):
 			return Reply{Text: "Нельзя создать напоминание в прошлом"}
-
 		case errors.Is(err, errBadFormat):
 			return Reply{
 				Text: "Неверный формат. Используй: ДД.ММ.ГГГГ ЧЧ:ММ текст",
 			}
 		default:
-			slog.Error("не удалось считать строку", "userID", user.ID, "Text", text, "error", err)
+			slog.Error("не удалось считать строку", "userID", user.ID, "args", text, "error", err)
 			return errorReply
 		}
 	}

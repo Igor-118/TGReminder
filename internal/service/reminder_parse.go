@@ -13,7 +13,7 @@ const reminderParts = 3
 const dateLayout = "02.01.2006 15:04"
 
 var (
-	errBadFormat = errors.New("bad format")  // не "ДД.ММ ЧЧ:ММ ...", или такой даты нет. Правильно писать например вот так: 02.01.2028 15:00 Дот это круто!
+	errBadFormat = errors.New("bad format")  // не "ДД.ММ ЧЧ:ММ ...", или такой даты нет. Правильно писать например вот так: 02.01.2028 15:00 Вот это круто!
 	errInPast    = errors.New("in the past") // время уже прошло
 	errEmptyText = errors.New("empty text")  // дата и время есть, а текста нет
 	errTooLong   = errors.New("text too long")
