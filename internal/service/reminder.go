@@ -60,7 +60,7 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 				Text: "Неверный формат. Используй: ДД.ММ.ГГГГ ЧЧ:ММ текст",
 			}
 		default:
-			slog.Error("не удалось считать строку", "userID", user.ID, "args", text, "error", err)
+			slog.Error("не удалось считать строку", "userID", user.ID, "args", args, "error", err)
 			return errorReply
 		}
 	}
