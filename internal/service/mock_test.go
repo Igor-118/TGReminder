@@ -26,6 +26,10 @@ func (f *fakeUserRepo) GetUserByTgID(ctx context.Context, tgID int64) (*domain.U
 	return f.user, f.err
 }
 
+func (f *fakeUserRepo) Create(ctx context.Context, user *domain.User) error {
+	return nil
+}
+
 func (f *fakeReminderRepo) ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error) {
 	f.calledList = true
 	f.gotUserID = userID
