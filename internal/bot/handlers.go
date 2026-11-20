@@ -26,6 +26,8 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	case "remind":
 		commandText := update.Message.CommandArguments()
 		reply = b.reminders.Add(ctx, id, commandText)
+	case "start":
+		reply = b.registration.Start(ctx, id)
 	default:
 		reply = b.registration.HandleInput(ctx, id, text)
 	}

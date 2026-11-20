@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"strings"
 	"tg-reminder/internal/domain"
-	"tg-reminder/internal/repository"
 	"time"
 )
 
@@ -34,7 +33,7 @@ const listLimit = 20
 func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Reply {
 	user, err := s.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 		slog.Error("failed to get user", "tgID", tgID, "error", err)
@@ -83,7 +82,7 @@ func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Repl
 func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
 	user, err := s.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 
