@@ -5,8 +5,8 @@ import (
 )
 
 type Reminder struct {
-	ID       int64
-	UserID   int64
-	Text     string
-	RemindAt time.Time
+	ID       int64     // dateid
+	UserID   int64     // user_id
+	Text     string    // description
+	RemindAt time.Time // time_announce
 }

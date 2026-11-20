@@ -13,14 +13,15 @@ import (
 
 type ReminderService struct {
 	userRepo     userGetter
-	reminderRepo reminderGetter // *repository.ReminderRepository
+	reminderRepo reminderStore // *repository.ReminderRepository
 }
 
-type reminderGetter interface {
+type reminderStore interface {
 	ListUpcoming(ctx context.Context, userID int64, limit int) ([]domain.Reminder, error)
+	Create(ctx context.Context, rem *domain.Reminder) error
 }
 
-func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
+func NewReminderService(userRepo userGetter, reminderRepo reminderStore,
 ) *ReminderService {
 	return &ReminderService{
 		userRepo:     userRepo,
@@ -29,6 +30,55 @@ func NewReminderService(userRepo userGetter, reminderRepo reminderGetter,
 }
 
 const listLimit = 20
+
+func (s *ReminderService) Add(ctx context.Context, tgID int64, args string) Reply {
+	user, err := s.userRepo.GetUserByTgID(ctx, tgID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
+		}
+		slog.Error("failed to get user", "tgID", tgID, "error", err)
+		return errorReply
+	}
+	loc, err := time.LoadLocation(user.TimeZone)
+	if err != nil {
+		slog.Error("не удалось получить часовой пояс", "userID", user.ID, "timeZone", user.TimeZone, "error", err)
+		return errorReply
+	}
+	nowInZone := time.Now().In(loc)
+	remindAt, text, err := parseReminder(args, nowInZone, loc)
+	if err != nil {
+		switch {
+		case errors.Is(err, errTooLong):
+			return Reply{Text: "Текст слишком длинный"}
+		case errors.Is(err, errEmptyText):
+			return Reply{Text: "Пустой текст в напоминании"}
+		case errors.Is(err, errInPast):
+			return Reply{Text: "Нельзя создать напоминание в прошлом"}
+		case errors.Is(err, errBadFormat):
+			return Reply{
+				Text: "Неверный формат. Используй: ДД.ММ.ГГГГ ЧЧ:ММ текст",
+			}
+		default:
+			slog.Error("не удалось считать строку", "userID", user.ID, "args", args, "error", err)
+			return errorReply
+		}
+	}
+	reminder := &domain.Reminder{
+		UserID:   user.ID,
+		Text:     text,
+		RemindAt: remindAt,
+	}
+	err = s.reminderRepo.Create(ctx, reminder)
+	if err != nil {
+		slog.Error("не удалось создать напоминание", "userID", user.ID, "error", err)
+		return errorReply
+	}
+	return Reply{
+		Text: fmt.Sprintf("Напомню %s: %s", reminder.RemindAt.Format("02.01.2006 в 15:04"),
+			reminder.Text),
+	}
+}
 
 func (s *ReminderService) List(ctx context.Context, tgID int64) Reply {
 	user, err := s.userRepo.GetUserByTgID(ctx, tgID)

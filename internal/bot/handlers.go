@@ -23,6 +23,9 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 		reply = b.reminders.List(ctx, id)
 	case "profile":
 		reply = b.profile.Show(ctx, id)
+	case "remind":
+		commandText := update.Message.CommandArguments()
+		reply = b.reminders.Add(ctx, id, commandText)
 	default:
 		reply = b.registration.HandleInput(ctx, id, text)
 	}
