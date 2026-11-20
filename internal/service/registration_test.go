@@ -9,47 +9,41 @@ import (
 	"tg-reminder/internal/service"
 )
 
-func TestRegistrationService_HandleInput(t *testing.T) {
+func TestRegistrationService_Start(t *testing.T) {
 	tests := []struct {
-		name  string
+		name string
 		input *fakeUserRepo
-		want  string
-		tgID  int64
+		tgID int64
+		want string
 	}{
 		{
-			name: "приветствие пользователя",
+			name: "пользователь уже зарегистрирован",
 			input: &fakeUserRepo{
-				user: &domain.User{
-					Name: "Игорь",
-				},
-				err: nil,
+				user: &domain.User{Name: "Игорь"},
 			},
 			tgID: 50,
-			want: "Привет, Игорь!",
+			want: "Игорь, ты уже зарегистрирован",
 		},
 		{
 			name: "пользователя нет",
 			input: &fakeUserRepo{
-				user: &domain.User{},
-				err:  domain.ErrNotFound,
+				err: domain.ErrNotFound,
 			},
 			tgID: 51,
-			want: "Сначала зарегистрируйся — напиши /start",
+			want: "Привет! Как тебя зовут?",
 		},
 		{
 			name: "ошибка обёрнута",
 			input: &fakeUserRepo{
-				user: &domain.User{},
-				err:  fmt.Errorf("get user: %w", domain.ErrNotFound),
+				err: fmt.Errorf("get user: %w", domain.ErrNotFound),
 			},
 			tgID: 52,
-			want: "Сначала зарегистрируйся — напиши /start",
+			want: "Привет! Как тебя зовут?",
 		},
 		{
-			name: "ошибка Базы Данных",
+			name: "ошибка базы данных",
 			input: &fakeUserRepo{
-				user: &domain.User{},
-				err:  errors.New("db down, База данных вниз"),
+				err: errors.New("db down"),
 			},
 			tgID: 53,
 			want: "Что-то пошло не так, попробуй позже",
@@ -60,20 +54,17 @@ func TestRegistrationService_HandleInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
 			registration := service.NewRegistrationService(tt.input)
-			got := registration.HandleInput(ctx, tt.tgID, "kek")
+
+			got := registration.Start(ctx, tt.tgID)
+
 			if tt.input.gotTgID != tt.tgID {
-				t.Errorf(
-					"GetUserByTgID() получил ID %d, ожидали %d",
-					tt.input.gotTgID,
-					tt.tgID,
-				)
-			}
-			if got.Text != tt.want {
-				t.Errorf(
-					"HandleInput().Text = %q, ожидали %q", got.Text, tt.want,
-				)
+				t.Errorf("GetUserByTgID() получил ID %d, ожидали %d",
+					tt.input.gotTgID, tt.tgID)
 			}
 
+			if got.Text != tt.want {
+				t.Errorf("Start().Text = %q, ожидали %q", got.Text, tt.want)
+			}
 		})
 	}
 }
