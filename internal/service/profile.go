@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"tg-reminder/internal/repository"
+	"tg-reminder/internal/domain"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func NewProfileService(userRepo userGetter) *ProfileService {
 func (p *ProfileService) Show(ctx context.Context, tgID int64) Reply {
 	user, err := p.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return Reply{Text: "Сначала зарегистрируйся — напиши /start"}
 		}
 

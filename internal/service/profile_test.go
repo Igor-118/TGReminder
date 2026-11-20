@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 	"tg-reminder/internal/domain"
-	"tg-reminder/internal/repository"
 	"tg-reminder/internal/service"
 )
 
@@ -36,7 +35,7 @@ func TestProfileService_Show(t *testing.T) {
 			name: "пользователя нет",
 			input: &fakeUserRepo{
 				user: &domain.User{},
-				err:  repository.ErrNotFound,
+				err:  domain.ErrNotFound,
 			},
 			tgID: 51,
 			want: []string{
@@ -47,7 +46,7 @@ func TestProfileService_Show(t *testing.T) {
 			name: "ошибка обёрнута",
 			input: &fakeUserRepo{
 				user: &domain.User{},
-				err:  fmt.Errorf("get user: %w", repository.ErrNotFound),
+				err:  fmt.Errorf("get user: %w", domain.ErrNotFound),
 			},
 			tgID: 52,
 			want: []string{
