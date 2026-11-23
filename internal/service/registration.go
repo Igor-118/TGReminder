@@ -105,13 +105,11 @@ func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input
 		r.states.Set(tgID, reg)
 
 		return Reply{Text: "Сколько тебе лет?"}
-
 	case stepAge:
 		age, err := strconv.Atoi(strings.TrimSpace(input))
 		if err != nil || age < 1 || age > 120 {
 			return Reply{Text: "Возраст должен быть целым числом от 1 до 120"}
 		}
-
 		reg.Age = age
 		reg.Step = stepTimezone
 		r.states.Set(tgID, reg)
@@ -120,7 +118,6 @@ func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input
 			Text:    "Выбери часовой пояс:",
 			Options: timezoneOptions,
 		}
-
 	case stepTimezone:
 		for _, option := range timezoneOptions {
 			if option.Value == input {
@@ -152,9 +149,7 @@ func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input
 				return Reply{Text: "Регистрация завершена!"}
 			}
 		}
-
 		return Reply{Text: "Выбери часовой пояс из списка", Options: timezoneOptions}
-
 	default:
 		return errorReply
 	}
