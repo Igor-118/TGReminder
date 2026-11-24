@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 	"tg-reminder/internal/domain"
-	"tg-reminder/internal/repository"
 	"tg-reminder/internal/service"
 	"time"
 )
@@ -76,7 +75,7 @@ func TestReminderService_Add(t *testing.T) {
 			name: "пользователя нет",
 			inputUser: &fakeUserRepo{
 				user: nil,
-				err:  repository.ErrNotFound,
+				err:  domain.ErrNotFound,
 			},
 			inputReminder: &fakeReminderRepo{},
 			tgID:          52,
@@ -85,7 +84,7 @@ func TestReminderService_Add(t *testing.T) {
 		{
 			name: "ошибка обёрнута",
 			inputUser: &fakeUserRepo{
-				err: fmt.Errorf("get user: %w", repository.ErrNotFound),
+				err: fmt.Errorf("get user: %w", domain.ErrNotFound),
 			},
 			inputReminder: &fakeReminderRepo{},
 			tgID:          52,
@@ -298,7 +297,7 @@ func TestReminderService_List(t *testing.T) {
 			name: "пользователя нет",
 			inputUser: &fakeUserRepo{
 				user: nil,
-				err:  repository.ErrNotFound,
+				err:  domain.ErrNotFound,
 			},
 			inputReminder: &fakeReminderRepo{},
 			tgID:          51,
@@ -307,7 +306,7 @@ func TestReminderService_List(t *testing.T) {
 		{
 			name: "ошибка обёрнута",
 			inputUser: &fakeUserRepo{
-				err: fmt.Errorf("get user: %w", repository.ErrNotFound),
+				err: fmt.Errorf("get user: %w", domain.ErrNotFound),
 			},
 			inputReminder: &fakeReminderRepo{},
 			tgID:          52,
