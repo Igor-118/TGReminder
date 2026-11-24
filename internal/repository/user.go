@@ -24,7 +24,7 @@ func (u *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	if err != nil {
 		return fmt.Errorf("create user: %w", err)
 	}
-	return err
+	return nil
 }
 
 func (u *UserRepository) GetUserByTgID(ctx context.Context, tgID int64) (*domain.User, error) {

@@ -49,10 +49,10 @@ type userStore interface {
 	Create(ctx context.Context, user *domain.User) error
 }
 
-func (s *RegistrationService) Start(ctx context.Context, tgID int64) Reply {
+func (r *RegistrationService) Start(ctx context.Context, tgID int64) Reply {
 	slog.Info("Starting Registration", "tgID", tgID)
 
-	user, err := s.userRepo.GetUserByTgID(ctx, tgID)
+	user, err := r.userRepo.GetUserByTgID(ctx, tgID)
 	if err != nil {
 		if !errors.Is(err, domain.ErrNotFound) {
 			slog.Error("failed to get user",
@@ -61,7 +61,7 @@ func (s *RegistrationService) Start(ctx context.Context, tgID int64) Reply {
 			return errorReply
 		}
 
-		s.states.Set(tgID, &registration{
+		r.states.Set(tgID, registration{
 			Step: stepName,
 		})
 
@@ -69,6 +69,16 @@ func (s *RegistrationService) Start(ctx context.Context, tgID int64) Reply {
 	}
 
 	return Reply{Text: fmt.Sprintf("%s, ты уже зарегистрирован", user.Name)}
+}
+
+func isKnownTimezone(input string) bool {
+	for _, option := range timezoneOptions {
+		if option.Value == input {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input string) Reply {
@@ -119,37 +129,45 @@ func (r *RegistrationService) HandleInput(ctx context.Context, tgID int64, input
 			Options: timezoneOptions,
 		}
 	case stepTimezone:
-		for _, option := range timezoneOptions {
-			if option.Value == input {
-				_, err := time.LoadLocation(input)
-				if err != nil {
-					slog.Error("failed to load timezone",
-						"timezone", input,
-						"error", err)
-					return errorReply
-				}
-
-				user := &domain.User{
-					TgID:     tgID,
-					Name:     reg.Name,
-					Age:      reg.Age,
-					TimeZone: input,
-				}
-
-				err = r.userRepo.Create(ctx, user)
-				if err != nil {
-					slog.Error("failed to create user",
-						"tgID", tgID,
-						"error", err)
-					return errorReply
-				}
-
-				r.states.Delete(tgID)
-
-				return Reply{Text: "Регистрация завершена!"}
+		if !isKnownTimezone(input) {
+			return Reply{
+				Text:    "Выбери часовой пояс из списка",
+				Options: timezoneOptions,
 			}
 		}
-		return Reply{Text: "Выбери часовой пояс из списка", Options: timezoneOptions}
+		_, err := time.LoadLocation(input)
+		if err != nil {
+			slog.Error("failed to load timezone",
+				"timezone", input,
+				"error", err)
+
+			return Reply{
+				Text:    "Что-то пошло не так, попробуй ещё раз",
+				Options: timezoneOptions,
+			}
+		}
+		user := &domain.User{
+			TgID:     tgID,
+			Name:     reg.Name,
+			Age:      reg.Age,
+			TimeZone: input,
+		}
+
+		err = r.userRepo.Create(ctx, user)
+		if err != nil {
+			slog.Error("failed to create user",
+				"tgID", tgID,
+				"error", err)
+
+			return Reply{
+				Text:    "Что-то пошло не так, попробуй ещё раз",
+				Options: timezoneOptions,
+			}
+		}
+
+		r.states.Delete(tgID)
+
+		return Reply{Text: "Регистрация завершена!"}
 	default:
 		return errorReply
 	}

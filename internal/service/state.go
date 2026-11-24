@@ -21,16 +21,16 @@ type registration struct {
 
 type StateStore struct {
 	mu     sync.Mutex
-	states map[int64]*registration
+	states map[int64]registration
 }
 
 func NewStateStore() *StateStore {
 	return &StateStore{
-		states: make(map[int64]*registration),
+		states: make(map[int64]registration),
 	}
 }
 
-func (s *StateStore) Get(tgID int64) (*registration, bool) { /* lock, прочитать */
+func (s *StateStore) Get(tgID int64) (registration, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -38,14 +38,14 @@ func (s *StateStore) Get(tgID int64) (*registration, bool) { /* lock, прочи
 	return registration, ok
 }
 
-func (s *StateStore) Set(tgID int64, r *registration) { /* lock, записать */
+func (s *StateStore) Set(tgID int64, r registration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.states[tgID] = r
 }
 
-func (s *StateStore) Delete(tgID int64) { /* lock, удалить */
+func (s *StateStore) Delete(tgID int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
